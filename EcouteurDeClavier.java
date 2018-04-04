@@ -28,11 +28,13 @@ class EcouteurDeClavier implements KeyListener {
 	Fenetre f;
     TerrainGraphique tg;
     Moteur m;
+    Solveur s;
     
-    EcouteurDeClavier(Fenetre f, TerrainGraphique tg, Moteur m) {
+    EcouteurDeClavier(Fenetre f, TerrainGraphique tg, Moteur m, Solveur s) {
         this.f = f;
         this.tg = tg;
         this.m = m;
+        this.s = s;
     }
     
     public void keyPressed(KeyEvent e) {
@@ -69,19 +71,20 @@ class EcouteurDeClavier implements KeyListener {
             // Exemple d'utilisation du statut d'une case : plus on passe par
             // une case, plus celle-ci est fonc�e.
         	
-        	if (isAccessible(x-1, y)) 
-                tg.setStatut(tg.getStatut(x-1,y).RED, x-1, y);
-
-        	if (isAccessible(x+1, y))
-                tg.setStatut(tg.getStatut(x+1,y).RED, x+1, y);
-
-        	if (isAccessible(x, y-1)) 
-                tg.setStatut(tg.getStatut(x,y-1).RED, x, y-1);
-
-        	if (isAccessible(x, y+1)) 
-                tg.setStatut(tg.getStatut(x,y+1).RED, x, y+1);
+//        	if (isAccessible(x-1, y)) 
+//                tg.setStatut(tg.getStatut(x-1,y).RED, x-1, y);
+//
+//        	if (isAccessible(x+1, y))
+//                tg.setStatut(tg.getStatut(x+1,y).RED, x+1, y);
+//
+//        	if (isAccessible(x, y-1)) 
+//                tg.setStatut(tg.getStatut(x,y-1).RED, x, y-1);
+//
+//        	if (isAccessible(x, y+1)) 
+//                tg.setStatut(tg.getStatut(x,y+1).RED, x, y+1);
         	
-            tg.setStatut(tg.getStatut(x,y).YELLOW, x, y);
+            //tg.setStatut(tg.getStatut(x,y).YELLOW, x, y);
+            //s.Dijkstra(x, y);
             f.tracerSansDelai(tg);
         }
     }

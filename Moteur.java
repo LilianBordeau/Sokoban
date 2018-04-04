@@ -24,6 +24,8 @@ Contact: Guillaume.Huard@imag.fr
 */
 class Moteur {
     Terrain t;
+    TerrainGraphique tg;
+    Solveur s;
     int lignePousseur, colonnePousseur;
     int nbMove;
     int win = 0;
@@ -37,17 +39,23 @@ class Moteur {
                     colonnePousseur = j;
                 }        
                 else if(t.consulter(i,j) == Case.BUT)
-        		{
-        			win++;
-        		}
+                {
+                    win++;
+                }
     }
     
+    public void setS(Solveur s, TerrainGraphique tg) {
+        this.s = s;
+        this.tg = tg;
+    }
+    
+    // Vérifie que la case n'est pas en dehors des limites
     public boolean correctBorder(int i, int j) {
     	return !((i < 0 || j < 0) || (i >= t.hauteur() || j >= t.largeur()));
     }
     
+    // Vérifie qu'on ne se déplace pas de plus d'une case
     public boolean correctMove(int i, int j) {
-    	//Deplacement limité à un carreau
     	return (((lignePousseur == i +1 || lignePousseur == i-1) && (colonnePousseur == j)) || 
     	   ((colonnePousseur == j+1 || colonnePousseur == j-1) && (lignePousseur == i)));
 
@@ -67,79 +75,86 @@ class Moteur {
 
 
     public boolean action(int i, int j) {
-//    	System.out.print("lp: " + lignePousseur);
-//    	System.out.println(" - cp: " + colonnePousseur);
-//    	System.out.print("i: " + i);
-//    	System.out.println(" - j: " + j);
-    	
+        
+    	// Mouvement correct
     	if(correctMove(i, j) && correctBorder(i, j) && win > 0)
     	{
-        if (t.consulter(i,j).estLibre()) {
-            Case courante = t.consulter(lignePousseur, colonnePousseur);
-            courante = courante.retrait(Case.POUSSEUR);
-            t.assigner(courante, lignePousseur, colonnePousseur);
-            courante = t.consulter(i, j);
-            courante = courante.ajout(Case.POUSSEUR);
-            t.assigner(courante, i, j);
+            // La case est libre
+            if (t.consulter(i,j).estLibre()) 
+            {
+                Case courante = t.consulter(lignePousseur, colonnePousseur);
+                courante = courante.retrait(Case.POUSSEUR);
+                t.assigner(courante, lignePousseur, colonnePousseur);
+                courante = t.consulter(i, j);
+                courante = courante.ajout(Case.POUSSEUR);
+                t.assigner(courante, i, j);
 
-            lignePousseur = i;
-            colonnePousseur = j;
-            
-            
-        } else if(t.consulter(i, j) == Case.SAC || t.consulter(i, j) == Case.SAC_SUR_BUT) {
-        	int iSac = i - lignePousseur;
-        	int jSac = j - colonnePousseur;
-        	
-        	
-        	
-        	//System.out.println(t.consulter(i + iSac, j + jSac));
-        	if(correctBorder(i+iSac, j+jSac) && (t.consulter(i + iSac, j + jSac) != Case.OBSTACLE) && (t.consulter(i + iSac, j + jSac) != Case.SAC))
-        	{
-//            	System.out.println("Je suis un GROS " + t.consulter(i + iSac, j + jSac));
-            	Case courante = t.consulter(lignePousseur, colonnePousseur);
-            	courante = courante.retrait(Case.POUSSEUR);
-            	t.assigner(courante, lignePousseur, colonnePousseur);
-            	
-            	courante = t.consulter(i, j);
-            	if (courante == Case.SAC_SUR_BUT)
-            	{
-            		courante = courante.retrait(Case.SAC_SUR_BUT);
-            		courante = courante.ajout(Case.POUSSEUR_SUR_BUT);
-            		win++;
-            	}
-            	else
-            	{
-            		courante = courante.retrait(Case.SAC);
-            		courante = courante.ajout(Case.POUSSEUR);
-            	}
-            	t.assigner(courante, i, j);
-            	
-            	Case newSac = t.consulter(i + iSac, j + jSac);
-        		if(t.consulter(i + iSac, j + jSac) == Case.BUT)
-        		{
-//        			System.out.println("JE SUIS UN BUT");
-                	newSac = newSac.ajout(Case.SAC_SUR_BUT);
-                	win--;
-        		}
-        		else
-        		{
-                	newSac = newSac.ajout(Case.SAC);
-        		}
-            	t.assigner(newSac, i + iSac, j + jSac);
-            	lignePousseur = i;
-            	colonnePousseur = j;
-            	
-        	}
-        	
+                lignePousseur = i;
+                colonnePousseur = j;
+            }
+            // La case est un sac
+            else if(t.consulter(i, j) == Case.SAC || t.consulter(i, j) == Case.SAC_SUR_BUT) 
+            {
+                int iSac = 2*i - lignePousseur;
+                int jSac = 2*j - colonnePousseur;
+
+                // La case suivante est libre
+                if(correctBorder(iSac, jSac) && (t.consulter(iSac, jSac) != Case.OBSTACLE) && (t.consulter(iSac, jSac) != Case.SAC))
+                {
+                    // On enleve le pousseur de la case courante
+                    Case courante = t.consulter(lignePousseur, colonnePousseur);
+                    courante = courante.retrait(Case.POUSSEUR);
+                    t.assigner(courante, lignePousseur, colonnePousseur);
+                    courante = t.consulter(i, j);
+
+                    // La case est un sac sur un but
+                    if (courante == Case.SAC_SUR_BUT)
+                    {
+                        courante = courante.retrait(Case.SAC_SUR_BUT);
+                        courante = courante.ajout(Case.POUSSEUR_SUR_BUT);
+                        win++;
+                    }
+                    else
+                    {
+                        courante = courante.retrait(Case.SAC);
+                        courante = courante.ajout(Case.POUSSEUR);
+                    }
+
+                    t.assigner(courante, i, j);
+
+                    Case newSac = t.consulter(iSac, jSac);
+
+                    // La case suivante est un but
+                    if(t.consulter(iSac, jSac) == Case.BUT)
+                    {
+                        newSac = newSac.ajout(Case.SAC_SUR_BUT);
+                        win--;
+                    }
+                    else
+                    {
+                        newSac = newSac.ajout(Case.SAC);
+                    }
+
+                    t.assigner(newSac, iSac, jSac);
+                    lignePousseur = i;
+                    colonnePousseur = j;
+                    sacABouge(iSac, jSac);
+                }
+
+            }
+            nbMove++;
+            System.out.println(nbMove);
+            if (win == 0) win();
+            return true;
         }
-        nbMove++;
-        System.out.println(nbMove);
-		if (win == 0) win();
-        return true;
-    	}
+        // Mouvement incorrect
     	else
     	{
-    		return false;
+            return false;
     	}
+    }
+    
+    public void sacABouge(int i, int j) {
+        s = new Solveur(this, tg);
     }
 }

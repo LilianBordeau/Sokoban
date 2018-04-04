@@ -50,9 +50,12 @@ public class Sokoban {
         Moteur m = new Moteur(t);
         TerrainGraphique tg = new TerrainGraphique(f, t);
 
-        e.addMouseListener(new EcouteurDeSouris(f, tg, m));
-        e.addKeyListener(new EcouteurDeClavier(f, tg, m));
-
+        Solveur s = new Solveur(m, tg);
+        m.setS(s, tg);
+        
+        e.addMouseListener(new EcouteurDeSouris(f, tg, m, s));
+        e.addKeyListener(new EcouteurDeClavier(f, tg, m, s));
+        
         f.tracerSansDelai(tg);
         
         while (true) {
