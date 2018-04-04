@@ -48,10 +48,9 @@ public class Position {
 	public void setY(int y) {
 		this.y = y;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
-            //return true;
 	    if (obj == null || !(obj instanceof Position)) return false;
 	    
 	    if (((Position) obj).getX() == this.getX() && ((Position) obj).getY() == this.getY()) return true;
@@ -59,14 +58,13 @@ public class Position {
 	    return false;
 	}
         
-        @Override
-        public int hashCode()
-        {
-            return this.getX()*1000+this.getY();
-        }
+    @Override
+    public int hashCode() {
+        return this.getX()*1000+this.getY();
+    }
 	
 	@Override
 	public String toString() {
-		return "X="+getX()+"Y="+getY();
+		return "X="+getX()+" Y="+getY();
 	}
 }

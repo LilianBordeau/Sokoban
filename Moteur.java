@@ -58,11 +58,9 @@ class Moteur {
     public boolean correctMove(int i, int j) {
     	return (((lignePousseur == i +1 || lignePousseur == i-1) && (colonnePousseur == j)) || 
     	   ((colonnePousseur == j+1 || colonnePousseur == j-1) && (lignePousseur == i)));
-
     }
     
     public void win() {
-    	System.out.println("C'EST GAGNE");
 	    for (int i=0; i<t.hauteur(); i++)
 	    {
 	        for (int j=0; j<t.largeur(); j++)
@@ -75,7 +73,6 @@ class Moteur {
 
 
     public boolean action(int i, int j) {
-        
     	// Mouvement correct
     	if(correctMove(i, j) && correctBorder(i, j) && win > 0)
     	{
@@ -95,13 +92,14 @@ class Moteur {
             // La case est un sac
             else if(t.consulter(i, j) == Case.SAC || t.consulter(i, j) == Case.SAC_SUR_BUT) 
             {
+            	// Case après le sac
                 int iSac = 2*i - lignePousseur;
                 int jSac = 2*j - colonnePousseur;
 
                 // La case suivante est libre
                 if(correctBorder(iSac, jSac) && (t.consulter(iSac, jSac) != Case.OBSTACLE) && (t.consulter(iSac, jSac) != Case.SAC))
                 {
-                    // On enleve le pousseur de la case courante
+                    // On enlève le pousseur de la case courante
                     Case courante = t.consulter(lignePousseur, colonnePousseur);
                     courante = courante.retrait(Case.POUSSEUR);
                     t.assigner(courante, lignePousseur, colonnePousseur);
@@ -155,6 +153,6 @@ class Moteur {
     }
     
     public void sacABouge(int i, int j) {
-        s = new Solveur(this, tg);
+        s.dijkstra();
     }
 }
