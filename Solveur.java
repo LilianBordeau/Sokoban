@@ -101,6 +101,7 @@ public class Solveur
 	
 	public void dijkstra() 
 	{
+        System.out.println("--- début Dijkstra");
 		init();
 
         Q = new LinkedList<Position>();
@@ -124,12 +125,13 @@ public class Solveur
 			}
 		}
 		printPath();
-        System.out.println("FINI");
+		printBestMove();
+        System.out.println("--- fin Dijkstra");
     }
 	
 	public void printPath() 
 	{
-		System.out.println("**** Chemin ****");
+		System.out.println("--- printPath");
 		Position cur = new Position(dest.getX(),dest.getY());
 		while (!cur.equals(src)) 
 		{
@@ -139,7 +141,7 @@ public class Solveur
 	        
 	        for (Position p : liste) 
 	        {
-	            System.out.println("p : " + p);
+	            //System.out.println("p : " + p);
 	            if (vecteur.get(p) < vecteur.get(min)) 
 	            {
 	                min = p;
@@ -147,8 +149,85 @@ public class Solveur
 	        }
 	        
 	        cur = new Position(min.getX(), min.getY());
-	        //tg.setStatut(tg.getStatut(cur.getX(),cur.getY()).BLUE, cur.getX(),cur.getY());
 	        tg.setStatut(Color.GRAY, cur.getX(),cur.getY());
+		}
+	}
+	
+	public void printBestMove() 
+	{
+		System.out.println("--- printBestMove");
+		if(src.getX() == 0 || src.getX() == m.t.hauteur()-1)
+		{
+			if(tg.getStatut(src.getX(), src.getY()-1) == Color.GRAY)
+			{
+		        tg.setStatut(Color.GREEN, src.getX(),src.getY()+1);
+			}
+			else if(tg.getStatut(src.getX(), src.getY()+1) == Color.GRAY)
+			{
+		        tg.setStatut(Color.GREEN, src.getX(),src.getY()-1);
+			}
+		}
+		else if(src.getY() == 0 || src.getY() == m.t.largeur()-1)
+		{
+			if(tg.getStatut(src.getX()+1, src.getY()) == Color.GRAY)
+			{
+		        tg.setStatut(Color.GREEN, src.getX()-1,src.getY());
+			}
+			else if(tg.getStatut(src.getX()-1, src.getY()) == Color.GRAY)
+			{
+		        tg.setStatut(Color.GREEN, src.getX()+1,src.getY());
+			}
+		}
+		else
+		{
+			if(tg.getStatut(src.getX()+1, src.getY()) == Color.GRAY)
+			{
+				if(vecteur.get(new Position(src.getX()-1, src.getY())) == -1)
+				{
+					System.out.println("meilleur mouvement pas défini");
+				}
+				else
+				{
+			        tg.setStatut(Color.GREEN, src.getX()-1,src.getY());	
+				}
+			}
+			else if(tg.getStatut(src.getX(), src.getY()+1) == Color.GRAY)
+			{
+				if(vecteur.get(new Position(src.getX(), src.getY()-1)) == -1)
+				{
+					System.out.println("meilleur mouvement pas défini");
+				}
+				else
+				{
+			        tg.setStatut(Color.GREEN, src.getX(),src.getY()-1);	
+				}
+			}
+			else if(tg.getStatut(src.getX()-1, src.getY()) == Color.GRAY)
+			{
+				if(vecteur.get(new Position(src.getX()+1, src.getY())) == -1)
+				{
+					System.out.println("meilleur mouvement pas défini");
+				}
+				else
+				{
+			        tg.setStatut(Color.GREEN, src.getX()+1,src.getY());	
+				}
+			}
+			else if(tg.getStatut(src.getX(), src.getY()-1) == Color.GRAY)
+			{
+				if(vecteur.get(new Position(src.getX(), src.getY()+1)) == -1)
+				{
+					System.out.println("meilleur mouvement pas défini");
+				}
+				else
+				{
+			        tg.setStatut(Color.GREEN, src.getX(),src.getY()+1);	
+				}
+			}
+			else
+			{
+				System.out.println("pas de mouvement possible");
+			}
 		}
 	}
 	
