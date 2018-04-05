@@ -59,6 +59,8 @@ public class Sokoban {
         
         f.tracerSansDelai(tg);
         
+        
+        
         while (true) {
             e.waitForEvent();
         }

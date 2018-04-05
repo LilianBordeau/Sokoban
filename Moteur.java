@@ -141,7 +141,7 @@ class Moteur {
 
             }
             nbMove++;
-            System.out.println("nb coups: " + nbMove + "\n");
+            System.out.println(nbMove);
             if (win == 0) win();
             return true;
         }
