@@ -17,12 +17,12 @@ public class Solveur
 {
 	Moteur m;
 	TerrainGraphique tg;
-        HashMap<ConfigPlateau,Integer> D;
-        HashSet<ConfigPlateau> alreadyChecked;
+    HashMap<ConfigPlateau,Integer> D;
+    HashSet<ConfigPlateau> alreadyChecked;
 	LinkedList<ConfigPlateau> Q;
 	
 	Position sacPosition;
-        //Position pousseurPosition;
+    //Position pousseurPosition;
 	Position dest;
 	
 	public Solveur (Moteur m, TerrainGraphique tg) 
@@ -32,135 +32,96 @@ public class Solveur
 	}
 	
 	private void init(){
-        Position pos;
-        Integer dis;
         
 	    for (int i=0; i<m.t.hauteur(); i++)
 	    {
 	        for (int j=0; j<m.t.largeur(); j++)
 	        {                	
-	            pos = new Position(i, j);
-	            dis = Integer.MAX_VALUE ;
-	
-	            if(m.t.consulter(i, j) == Case.OBSTACLE)  
-	            {
-	                dis = -1 ;
-	            }
-	            else if(m.t.consulter(i, j) == Case.SAC) 
+	             
+	            if(m.t.consulter(i, j) == Case.SAC) 
 	            {
 	                sacPosition = new Position(i, j);
-	                dis = 0;
+	        		tg.setStatut(Color.WHITE, i,j);
 	            } 
 	            else if(m.t.consulter(i, j) == Case.BUT) 
 	            {
 	                dest = new Position(i, j);
+	        		tg.setStatut(Color.WHITE, i,j);
 	            }
-	            /*else
+	            else
 	            {
-	            	dis = isValid(i,j);
-	            }*/
+	        		tg.setStatut(Color.WHITE, i,j);
+	            }
 	        }
 	    }
 	}
-	
-	public int isValid(int i, int j)
-	{
-		if(i == 0 || i == m.t.hauteur()-1)
-		{
-			if(j == 0 || j == m.t.largeur()-1)
-			{
-				tg.setStatut(Color.RED, i,j);
-				return -1;
-			}
-			else if(m.t.consulter(i, j+1) == Case.OBSTACLE || m.t.consulter(i, j-1) == Case.OBSTACLE)
-			{
-				tg.setStatut(Color.RED, i,j);
-				return -1;
-			}
-		}
-		else if(j == 0 || j == m.t.largeur()-1)
-		{
-			if(m.t.consulter(i+1, j) == Case.OBSTACLE || m.t.consulter(i-1, j) == Case.OBSTACLE)
-			{
-				tg.setStatut(Color.RED, i,j);
-				return -1;
-			}
-		}
-		else if(m.t.consulter(i, j+1) == Case.OBSTACLE || m.t.consulter(i, j-1) == Case.OBSTACLE)
-		{
-			if(m.t.consulter(i+1, j) == Case.OBSTACLE || m.t.consulter(i-1, j) == Case.OBSTACLE)
-			{
-				tg.setStatut(Color.RED, i,j);
-				return -1;
-			}
-		}
-		
-		tg.setStatut(Color.WHITE, i,j);
-		return Integer.MAX_VALUE;
-	}
         
-        public Integer getDistance(ConfigPlateau c) {
-            if (D.containsKey(c)) return D.get(c);
-            return 10000;
-        }
+    public Integer getDistance(ConfigPlateau c) {
+    	if (D.containsKey(c)) return D.get(c);
+    	return 10000;
+    }
 	
 	public void dijkstra() 
 	{
-            init();
+        init();
 
-            Q = new LinkedList<ConfigPlateau>();
-            ConfigPlateau configInitiale = new ConfigPlateau(new Position(m.lignePousseur, m.colonnePousseur), sacPosition, null);
-            Q.add(configInitiale);
-            D = new HashMap<>();
-            
-            D.put(configInitiale, 0);
-            
-            int n = 0;
+        Q = new LinkedList<ConfigPlateau>();
+        ConfigPlateau configInitiale = new ConfigPlateau(new Position(m.lignePousseur, m.colonnePousseur), sacPosition, null);
+        Q.add(configInitiale);
+        D = new HashMap<>();
+        
+        D.put(configInitiale, 0);
+        
+        int n = 0;
 
-            while(!Q.isEmpty()) 
+        while(!Q.isEmpty()) 
+        {
+            n++;
+            ConfigPlateau u = findMinimum();
+            configInitiale = u;
+            Q.remove(u);
+            if (u.sacPosition.equals(dest)) {
+                System.out.println("TTTHHHEEE EEENNNDDD" + n);
+                printPath(u);
+                return;
+            }
+
+            for(ConfigPlateau v : getVoisins(u))
             {
-                n++;
-                ConfigPlateau u = findMinimum();
-                configInitiale = u;
-                Q.remove(u);
-                if (u.sacPosition.equals(dest)) {
-                    System.out.println("TTTHHHEEE EEENNNDDD" + n);
-                    printPath(u);
-                    return;
-                }
 
-                for(ConfigPlateau v : getVoisins(u))
-                {
-
-                    if(getDistance(u) + 1 < getDistance(v)) {
-                        System.out.println(getDistance(u));
-                        D.put(v, getDistance(u) + 1);
-                        Q.add(v);
-                    }
+                if(getDistance(u) + 1 < getDistance(v)) {
+                    System.out.println(getDistance(u));
+                    D.put(v, getDistance(u) + 1);
+                    Q.add(v);
                 }
             }
-            printPath(configInitiale);
-            System.out.println("FINI EN ERREUR"+n);
+        }
+        printPath(configInitiale);
+        System.out.println("FINI EN ERREUR"+n);
     }
 	
 	public void printPath(ConfigPlateau c) 
 	{    
+			ConfigPlateau prec = c ;
+			int nbMovePousseur = 0 ; int nbMoveSac = 0 ;
             while(c != null) {
-                
+            	nbMovePousseur++;
+            	if(!c.sacPosition.equals(prec.sacPosition)) nbMoveSac++;
                 tg.setStatut(tg.getStatut(c.pousseurPosition.getX(), c.pousseurPosition.getY()).darker(), c.pousseurPosition.getX(), c.pousseurPosition.getY());
                 tg.setStatut(Color.GREEN, c.sacPosition.getX(),c.sacPosition.getY());
                 c = c.prec;
                 tg.f.tracer(tg);
             }
+            System.out.println("nbMovePousseur : " + nbMovePousseur + " - nbMoveSac : " + nbMoveSac);
 	}
 	
-        private int heuristique(Position c1, Position c2) {
+    private int heuristique(Position c1, Position c2) {
 		return Math.abs(c1.getX()-c2.getX()) + Math.abs(c1.getY()-c2.getY());
 	}
         
-        private int getValue(ConfigPlateau c) {
-            return getDistance(c) + heuristique(c.pousseurPosition, c.sacPosition) + heuristique(c.sacPosition, dest);
-        }
+    private int getValue(ConfigPlateau c) {
+        return getDistance(c) + heuristique(c.pousseurPosition, c.sacPosition) + heuristique(c.sacPosition, dest);
+    }
         
 	public ConfigPlateau findMinimum() 
 	{
@@ -183,7 +144,7 @@ public class Solveur
 		Position p3 = new Position(p.getX() - 1,p.getY());
 		Position p4 = new Position(p.getX() + 1,p.getY());
 		
-                voisins.add(p1);
+        voisins.add(p1);
 		voisins.add(p2);
 		voisins.add(p3);
 		voisins.add(p4);
@@ -191,7 +152,7 @@ public class Solveur
 		return voisins;
 	}
         
-        public ArrayList<ConfigPlateau> getVoisins(ConfigPlateau c) 
+    public ArrayList<ConfigPlateau> getVoisins(ConfigPlateau c) 
 	{
             ArrayList<ConfigPlateau> voisins = new ArrayList<ConfigPlateau>();
             
@@ -208,7 +169,8 @@ public class Solveur
                         }
                         
                         
-                    } else {
+                    } 
+                    else {
                         voisins.add(new ConfigPlateau(p, c.sacPosition, c));
                     }
                 }
