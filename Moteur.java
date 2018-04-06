@@ -60,7 +60,7 @@ class Moteur {
     	   ((colonnePousseur == j+1 || colonnePousseur == j-1) && (lignePousseur == i)));
     }
     
-    public void win() {
+    public void win(int nbMove) {
 	    for (int i=0; i<t.hauteur(); i++)
 	    {
 	        for (int j=0; j<t.largeur(); j++)
@@ -69,6 +69,7 @@ class Moteur {
 	        	t.assigner(courante, i, j);
 	        }
 	    }
+	    System.out.println("Nb mouvements : " + nbMove);
     }
 
 
@@ -141,8 +142,7 @@ class Moteur {
 
             }
             nbMove++;
-            System.out.println(nbMove);
-            if (win == 0) win();
+            if (win == 0) win(nbMove);
             return true;
         }
         // Mouvement incorrect
@@ -153,6 +153,6 @@ class Moteur {
     }
     
     public void sacABouge(int i, int j) {
-        s.dijkstra();
+        s.aStar();
     }
 }

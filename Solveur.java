@@ -61,7 +61,7 @@ public class Solveur
     	return 10000;
     }
 	
-	public void dijkstra() 
+	public void aStar() 
 	{
         init();
 
@@ -81,7 +81,7 @@ public class Solveur
             configInitiale = u;
             Q.remove(u);
             if (u.sacPosition.equals(dest)) {
-                System.out.println("TTTHHHEEE EEENNNDDD" + n);
+                System.out.println("Succès en " + n + " configurations testées.");
                 printPath(u);
                 return;
             }
@@ -90,14 +90,14 @@ public class Solveur
             {
 
                 if(getDistance(u) + 1 < getDistance(v)) {
-                    System.out.println(getDistance(u));
+                    //System.out.println(getDistance(u));
                     D.put(v, getDistance(u) + 1);
                     Q.add(v);
                 }
             }
         }
         printPath(configInitiale);
-        System.out.println("FINI EN ERREUR"+n);
+        System.out.println("Erreur avec "+n + " configurations testées.");
     }
 	
 	public void printPath(ConfigPlateau c) 
@@ -106,13 +106,16 @@ public class Solveur
 			int nbMovePousseur = 0 ; int nbMoveSac = 0 ;
             while(c != null) {
             	nbMovePousseur++;
-            	if(!c.sacPosition.equals(prec.sacPosition)) nbMoveSac++;
                 tg.setStatut(tg.getStatut(c.pousseurPosition.getX(), c.pousseurPosition.getY()).darker(), c.pousseurPosition.getX(), c.pousseurPosition.getY());
-                tg.setStatut(Color.GREEN, c.sacPosition.getX(),c.sacPosition.getY());
+                if(!(tg.getStatut(c.sacPosition.getX(), c.sacPosition.getY()) == Color.GREEN))
+                {
+                	nbMoveSac++;
+                    tg.setStatut(Color.GREEN, c.sacPosition.getX(),c.sacPosition.getY());
+                }
                 c = c.prec;
                 tg.f.tracer(tg);
             }
-            System.out.println("nbMovePousseur : " + nbMovePousseur + " - nbMoveSac : " + nbMoveSac);
+            System.out.println(nbMovePousseur + " mouvements pousseur - " + nbMoveSac + " mouvements sac.");
 	}
 	
     private int heuristique(Position c1, Position c2) {
@@ -121,6 +124,7 @@ public class Solveur
         
     private int getValue(ConfigPlateau c) {
         return getDistance(c) + heuristique(c.pousseurPosition, c.sacPosition) + heuristique(c.sacPosition, dest);
+        //return getDistance(c) + heuristique(c.pousseurPosition, c.sacPosition);
     }
         
 	public ConfigPlateau findMinimum() 
@@ -152,23 +156,18 @@ public class Solveur
 		return voisins;
 	}
         
-    public ArrayList<ConfigPlateau> getVoisins(ConfigPlateau c) 
+    public ArrayList<ConfigPlateau> getVoisins(ConfigPlateau c)
 	{
             ArrayList<ConfigPlateau> voisins = new ArrayList<ConfigPlateau>();
             
             for (Position p : getVoisins(c.pousseurPosition)) {
-                if (p.getX() ==1 && p.getY() == 0) 
-                System.out.println("ii");
                 if (m.correctBorder(p.getX(), p.getY()) && (m.t.consulter(p.getX(), p.getY()) != Case.OBSTACLE)) {
                     if (p.equals(c.sacPosition)) {
                         Position newSacPosition = new Position(2*c.sacPosition.getX() - c.pousseurPosition.getX(), 2*c.sacPosition.getY() - c.pousseurPosition.getY());
                         if (m.correctBorder(newSacPosition.getX(), newSacPosition.getY()) && 
                                 (m.t.consulter(newSacPosition.getX(), newSacPosition.getY()) != Case.OBSTACLE)) {
-                            
                             voisins.add(new ConfigPlateau(p, newSacPosition, c));
                         }
-                        
-                        
                     } 
                     else {
                         voisins.add(new ConfigPlateau(p, c.sacPosition, c));

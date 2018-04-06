@@ -52,7 +52,7 @@ public class Sokoban {
 
         Solveur s = new Solveur(m, tg);
         m.setS(s, tg);
-        s.dijkstra();
+        s.aStar();
         
         e.addMouseListener(new EcouteurDeSouris(f, tg, m, s));
         e.addKeyListener(new EcouteurDeClavier(f, tg, m, s));
